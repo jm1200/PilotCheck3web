@@ -1,14 +1,30 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { ApolloProvider } from "@apollo/client/react";
+import { ChakraProvider } from "@chakra-ui/react";
+
+import { ApolloClient, InMemoryCache } from "@apollo/client";
+import theme from "./theme";
+
+require("dotenv").config();
+console.log(process.env.PUBLIC_URL);
+
+const client = new ApolloClient({
+  uri: "http://localhost:4000/graphql",
+  cache: new InMemoryCache(),
+});
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ApolloProvider client={client}>
+      <ChakraProvider resetCSS theme={theme}>
+        <App />
+      </ChakraProvider>
+    </ApolloProvider>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function
