@@ -5,9 +5,11 @@ import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
 import { useLoginMutation, MeQuery, MeDocument } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
+import { useHistory } from "react-router";
 
 export const Login: React.FC<{}> = () => {
   const [login] = useLoginMutation();
+  const history = useHistory();
   return (
     <Wrapper variant="small">
       <Formik
@@ -29,12 +31,7 @@ export const Login: React.FC<{}> = () => {
           if (response.data?.login.errors) {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
-            // if (typeof router.query.next === "string") {
-            //   router.push(router.query.next);
-            // } else {
-            //   // worked
-            //   router.push("/");
-            // }
+            history.push("/protected");
           }
         }}
       >

@@ -8,9 +8,6 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import theme from "./theme";
 
-require("dotenv").config();
-console.log(process.env.PUBLIC_URL);
-
 const client = new ApolloClient({
   uri: "http://localhost:4000/graphql",
   cache: new InMemoryCache(),

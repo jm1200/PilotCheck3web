@@ -1,25 +1,18 @@
-import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
-import { Login } from "./pages/login";
-import { Register } from "./pages/register";
+import { Flex } from "@chakra-ui/layout";
+import { BrowserRouter as Router } from "react-router-dom";
+
 import { NavBar } from "./components/NavBar";
-import { Wrapper } from "./components/Wrapper";
+import { Sidebar } from "./components/SideBar";
+import { Routes } from "./Routes";
 
 function App() {
   return (
     <Router>
       <NavBar />
-      <Switch>
-        <Route path="/login">
-          <Wrapper>
-            <Login />
-          </Wrapper>
-        </Route>
-        <Route path="/register">
-          <Wrapper>
-            <Register />
-          </Wrapper>
-        </Route>
-      </Switch>
+      <Flex w="100%">
+        <Sidebar />
+        <Routes />
+      </Flex>
     </Router>
   );
 }

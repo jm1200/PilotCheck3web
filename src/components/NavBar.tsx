@@ -11,8 +11,6 @@ export const NavBar: React.FC<NavBarProps> = () => {
   const apolloClient = useApolloClient();
   const { data, loading } = useMeQuery();
 
-  console.log(data, loading);
-
   let body = null;
 
   // data is loading
@@ -35,6 +33,9 @@ export const NavBar: React.FC<NavBarProps> = () => {
     body = (
       <Flex align="center">
         <Box mr={2}>{data.me.email}</Box>
+        <Link as={RouterLink} to="/protected" mr={2}>
+          protected
+        </Link>
         <Button
           onClick={async () => {
             await logout();
