@@ -3,47 +3,46 @@ import { Formik, Form } from "formik";
 import { Box, Button } from "@chakra-ui/react";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
-import { useLoginMutation, MeQuery, MeDocument } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
+import { useAuth } from "../Providers/AuthProvider";
+import { TestIdWrapper } from "../components/TestIdWrapper";
 
 export const Login: React.FC<{}> = () => {
-  const [login] = useLoginMutation();
+  // const [login] = useLoginMutation();
+  const { signin } = useAuth();
   const history = useHistory();
+  const location = useLocation();
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={{ email: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const response = await login({
-            variables: values,
-            update: (cache, { data }) => {
-              cache.writeQuery<MeQuery>({
-                query: MeDocument,
-                data: {
-                  __typename: "Query",
-                  me: data?.login.user,
-                },
-              });
-              cache.evict({ fieldName: "posts:{}" });
-            },
-          });
+          //signin! will be defined by useProviderAuth hook
+          const response = await signin!(values);
+
           if (response.data?.login.errors) {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
-            history.push("/protected");
+            history.push((location.state as string) || "/home");
           }
         }}
       >
         {({ isSubmitting }) => (
           <Form>
-            <InputField name="email" placeholder="email" label="Email" />
+            <InputField
+              name="email"
+              placeholder="email"
+              label="Email"
+              data-testid="loginInputEmail"
+            />
             <Box mt={4}>
               <InputField
                 name="password"
                 placeholder="password"
                 label="Password"
                 type="password"
+                data-testid="loginInputPassword"
               />
             </Box>
 
@@ -52,8 +51,10 @@ export const Login: React.FC<{}> = () => {
               type="submit"
               isLoading={isSubmitting}
               colorScheme="teal"
+              data-testid="loginSubmit"
             >
               login
+              {/* <TestIdWrapper id="loginSubmit">login</TestIdWrapper> */}
             </Button>
           </Form>
         )}

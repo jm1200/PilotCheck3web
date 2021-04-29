@@ -3,35 +3,25 @@ import { Formik, Form } from "formik";
 import { Box, Button } from "@chakra-ui/react";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
-import { useRegisterMutation, MeQuery, MeDocument } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
+import { useAuth } from "../Providers/AuthProvider";
+import { useHistory, useLocation } from "react-router";
 
-interface registerProps {}
-
-export const Register: React.FC<registerProps> = () => {
-  const [register] = useRegisterMutation();
+export const Register: React.FC<{}> = () => {
+  const { signup } = useAuth();
+  const history = useHistory();
+  const location = useLocation();
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={{ email: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const response = await register({
-            variables: { options: values },
-            update: (cache, { data }) => {
-              cache.writeQuery<MeQuery>({
-                query: MeDocument,
-                data: {
-                  __typename: "Query",
-                  me: data?.register.user,
-                },
-              });
-            },
-          });
+          //signup! will be defined by useProviderAuth hook
+          const response = await signup!(values);
           if (response.data?.register.errors) {
             setErrors(toErrorMap(response.data.register.errors));
           } else if (response.data?.register.user) {
-            // worked
-            // router.push("/");
+            history.push((location.state as string) || "/home");
           }
         }}
       >
