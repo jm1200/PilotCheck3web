@@ -1,85 +1,160 @@
-import { Flex, Heading, Text } from "@chakra-ui/react";
-var parseString = require("xml2js").parseString;
+import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { firstCharLowerCase, parseBooleans } from "xml2js/lib/processors";
+import { Parser } from "xml2js";
+import { useState } from "react";
 interface ChecklistProps {}
 
 let xml = `
-<root><ChecklistTitle>Configuration Safety Checklist</ChecklistTitle><ChecklistItems><ChecklistItem>SLAT/FLAP lever</ChecklistItem><ChecklistAction>
+<root>
+<ChecklistTitle>Configuration Safety Checklist</ChecklistTitle>
+<ChecklistItem><Item>SLAT/FLAP lever</Item><Action>
     In agreement with actual Slat/Flap position
-  </ChecklistAction>
-</ChecklistItems>
-<ChecklistItems>
-  <ChecklistItem>PARK BRAKE</ChecklistItem>
-  <ChecklistAction>ON</ChecklistAction>
-</ChecklistItems>
-<ChecklistItems>
-  <ChecklistItem>BATT 1</ChecklistItem>
-  <ChecklistAction>AUTO</ChecklistAction>
-</ChecklistItems>
-<ChecklistItems>
-  <ChecklistItem>BATT 2</ChecklistItem>
-  <ChecklistAction>AUTO</ChecklistAction>
-</ChecklistItems>
-<ChecklistItems><FullRow>Once DU 2 is Powered</FullRow></ChecklistItems>
-<ChecklistItems>
-  <ChecklistItem>ECL</ChecklistItem>
-  <ChecklistAction>Select on DU 2</ChecklistAction>
-</ChecklistItems></root>`;
-//@ts-ignore
-parseString(xml, function (err, result) {
-  console.dir(result);
+  </Action>
+  </ChecklistItem>
+
+<ChecklistItem ffod="true" done="true">
+  <Item>PARK BRAKE</Item>
+  <Action>ON</Action>
+</ChecklistItem>
+<ChecklistItem>
+  <Item>BATT 1</Item>
+  <Action>AUTO</Action>
+</ChecklistItem>
+<ChecklistItem>
+  <Item>BATT 2</Item>
+  <Action>AUTO</Action>
+</ChecklistItem>
+<ChecklistItem fullRow="true"><Item>Once DU 2 is Powered</Item></ChecklistItem>
+<ChecklistItem>
+  <Item>ECL</Item>
+  <Action>Select on DU 2</Action>
+</ChecklistItem></root>`;
+
+let x = new Parser({
+  mergeAttrs: true,
+  explicitArray: false,
+  attrValueProcessors: [parseBooleans],
+  tagNameProcessors: [firstCharLowerCase],
 });
 
-const ChecklistTitle: React.FC<{}> = ({ children }) => {
-  return <Heading>{children}</Heading>;
+type ChecklistResult = {
+  root: Checklist;
 };
 
-const ChecklistItems: React.FC<{}> = ({ children }) => {
+type Checklist = {
+  checklistTitle: string;
+  checklistItem: [CheckType];
+};
+
+class CheckType {
+  item: string = "";
+  action: string = "";
+  ffod: boolean = false;
+  done: boolean = false;
+  fullRow: boolean = false;
+}
+
+export const Checklist: React.FC<ChecklistProps> = () => {
+  let ffod = true;
+
+  let defaultChecklist: Checklist = {} as Checklist;
+  x.parseString(
+    xml,
+    // {
+    //   attrValueProcessors: [parseBooleans],
+    // },
+
+    function (err: any, result: ChecklistResult) {
+      result.root.checklistItem.forEach((item) => {
+        if (!item.ffod) {
+          item.ffod = false;
+        }
+        if (!item.done) {
+          item.done = false;
+        }
+        if (!item.fullRow) {
+          item.fullRow = false;
+        }
+      });
+
+      console.log(result);
+
+      defaultChecklist = result.root;
+
+      if (err) {
+        console.log(err);
+      }
+    }
+  );
+
+  const [checklist, setChecklist] = useState<Checklist>(defaultChecklist);
+
+  const handleClickDone = (item: string) => {
+    console.log(item);
+    checklist.checklistItem.forEach((check) => {
+      if (check.item === item) {
+        console.log("Checklist.tsx 91 found item:", check);
+        check.done = !check.done;
+        console.log("Checklist.tsx 93 found item:", check);
+      }
+    });
+
+    setChecklist({ ...checklist });
+  };
+
   return (
-    <Flex w="100%" direction="row">
-      {children}
+    <Flex direction="column" p={2}>
+      <Heading>{checklist.checklistTitle}</Heading>
+      <Box p={2}>
+        {checklist.checklistItem
+          .filter((item) => {
+            if (!ffod && item.ffod) {
+              return false;
+            } else return true;
+          })
+          .map((item, i) => {
+            return (
+              <Check
+                key={`${i}${item}`}
+                {...item}
+                handleClickDone={handleClickDone}
+              />
+            );
+          })}
+      </Box>
     </Flex>
   );
 };
 
-const ChecklistBreak: React.FC<{}> = ({ children }) => {
-  return <Text>{children}</Text>;
-};
+interface CheckProps extends CheckType {
+  handleClickDone: (item: string) => void;
+}
 
-const ChecklistItem: React.FC<{}> = ({ children }) => {
-  return <Flex flex={1}>{children}</Flex>;
-};
-
-const ChecklistAction: React.FC<{}> = ({ children }) => {
-  return <Text>{children}</Text>;
-};
-
-export const Checklist: React.FC<ChecklistProps> = () => {
+export const Check: React.FC<CheckProps> = ({
+  item,
+  action,
+  done,
+  fullRow,
+  handleClickDone,
+}) => {
   return (
-    <Flex direction="column">
-      <ChecklistTitle>Configuration Safety Checklist</ChecklistTitle>
-      <ChecklistItems>
-        <ChecklistItem>SLAT/FLAP lever</ChecklistItem>
-        <ChecklistAction>
-          In agreement with actual Slat/Flap position
-        </ChecklistAction>
-      </ChecklistItems>
-      <ChecklistItems>
-        <ChecklistItem>PARK BRAKE</ChecklistItem>
-        <ChecklistAction>ON</ChecklistAction>
-      </ChecklistItems>
-      <ChecklistItems>
-        <ChecklistItem>BATT 1</ChecklistItem>
-        <ChecklistAction>AUTO</ChecklistAction>
-      </ChecklistItems>
-      <ChecklistItems>
-        <ChecklistItem>BATT 2</ChecklistItem>
-        <ChecklistAction>AUTO</ChecklistAction>
-      </ChecklistItems>
-      <ChecklistBreak>Once DU 2 is Powered</ChecklistBreak>
-      <ChecklistItems>
-        <ChecklistItem>ECL</ChecklistItem>
-        <ChecklistAction>Select on DU 2</ChecklistAction>
-      </ChecklistItems>
+    <Flex
+      my={2}
+      p={2}
+      bgColor={done ? "green.200" : "red.200"}
+      onClick={() => handleClickDone(item)}
+    >
+      <Text
+        fontWeight="bold"
+        flex={1}
+        color="black"
+        textAlign={fullRow ? "center" : undefined}
+      >
+        {item}
+      </Text>
+      <Text fontSize="sm" color="black">
+        {action}
+      </Text>
     </Flex>
   );
 };

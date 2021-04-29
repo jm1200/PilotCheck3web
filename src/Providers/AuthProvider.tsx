@@ -16,7 +16,6 @@ function useProvideAuth() {
   const [me, setMe] = useState(meData);
 
   useEffect(() => {
-    console.log("AuthProvider.tsx 19 meData:", meData);
     setMe(meData);
   }, [meData]);
 

@@ -6,7 +6,6 @@ import { InputField } from "../components/InputField";
 import { toErrorMap } from "../utils/toErrorMap";
 import { useHistory, useLocation } from "react-router";
 import { useAuth } from "../Providers/AuthProvider";
-import { TestIdWrapper } from "../components/TestIdWrapper";
 
 export const Login: React.FC<{}> = () => {
   // const [login] = useLoginMutation();

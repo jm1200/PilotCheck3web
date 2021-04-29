@@ -17,7 +17,6 @@ export const NavBar: React.FC<NavBarProps> = () => {
   const history = useHistory();
   const { data, loading } = useMeQuery();
 
-  console.log("NavBar.tsx 20 data:", data);
   let body = null;
 
   // data is loading
