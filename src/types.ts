@@ -18,3 +18,19 @@ export type Signup = (
 >;
 
 export type Signout = () => void;
+
+type FileId = string;
+
+interface FolderContents {
+  folders?: Folder[];
+  files?: FileId[];
+}
+
+export interface Folder {
+  id: string;
+  open: boolean;
+  folderName: string;
+  order: number;
+  contents: FolderContents;
+  editable: boolean;
+}

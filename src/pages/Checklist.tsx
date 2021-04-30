@@ -1,34 +1,11 @@
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
 import { firstCharLowerCase, parseBooleans } from "xml2js/lib/processors";
 import { Parser } from "xml2js";
-import { useState } from "react";
-interface ChecklistProps {}
-
-let xml = `
-<root>
-<ChecklistTitle>Configuration Safety Checklist</ChecklistTitle>
-<ChecklistItem><Item>SLAT/FLAP lever</Item><Action>
-    In agreement with actual Slat/Flap position
-  </Action>
-  </ChecklistItem>
-
-<ChecklistItem ffod="true" done="true">
-  <Item>PARK BRAKE</Item>
-  <Action>ON</Action>
-</ChecklistItem>
-<ChecklistItem>
-  <Item>BATT 1</Item>
-  <Action>AUTO</Action>
-</ChecklistItem>
-<ChecklistItem>
-  <Item>BATT 2</Item>
-  <Action>AUTO</Action>
-</ChecklistItem>
-<ChecklistItem fullRow="true"><Item>Once DU 2 is Powered</Item></ChecklistItem>
-<ChecklistItem>
-  <Item>ECL</Item>
-  <Action>Select on DU 2</Action>
-</ChecklistItem></root>`;
+import { useEffect, useState } from "react";
+import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
+interface ChecklistProps {
+  xml: string;
+}
 
 let x = new Parser({
   mergeAttrs: true,
@@ -38,12 +15,12 @@ let x = new Parser({
 });
 
 type ChecklistResult = {
-  root: Checklist;
+  checklist: ChecklistType;
 };
 
-type Checklist = {
+type ChecklistType = {
   checklistTitle: string;
-  checklistItem: [CheckType];
+  checklistItem: [CheckType] | CheckType;
 };
 
 class CheckType {
@@ -54,76 +31,158 @@ class CheckType {
   fullRow: boolean = false;
 }
 
-export const Checklist: React.FC<ChecklistProps> = () => {
-  let ffod = true;
+export const Checklist: React.FC<ChecklistProps> = ({ xml }) => {
+  const [checklist, setChecklist] = useState<ChecklistType | null>(null);
+  const [err, setErr] = useState<any>("");
+  const [ffodState, setffodState] = useState(false);
 
-  let defaultChecklist: Checklist = {} as Checklist;
-  x.parseString(
-    xml,
-    // {
-    //   attrValueProcessors: [parseBooleans],
-    // },
+  useEffect(() => {
+    let checklist: ChecklistType | null = null;
 
-    function (err: any, result: ChecklistResult) {
-      result.root.checklistItem.forEach((item) => {
-        if (!item.ffod) {
-          item.ffod = false;
+    x.parseString(xml, function (err: any, result: ChecklistResult) {
+      if (result && result.checklist && result.checklist.checklistItem) {
+        if ((result.checklist.checklistItem as [CheckType]).length > 0) {
+          (result.checklist.checklistItem as [CheckType]).forEach((item) => {
+            console.log("got here");
+            if (!item.ffod) {
+              item.ffod = false;
+            }
+            if (!item.done) {
+              item.done = false;
+            }
+            if (!item.fullRow) {
+              item.fullRow = false;
+            }
+            if (!item.item) {
+              item.item = "Item description";
+            }
+            if (!item.action) {
+              item.action = "Action";
+            }
+          });
+        } else {
+          if (!(result.checklist.checklistItem as CheckType).ffod) {
+            (result.checklist.checklistItem as CheckType).ffod = false;
+          }
+          if (!(result.checklist.checklistItem as CheckType).done) {
+            (result.checklist.checklistItem as CheckType).done = false;
+          }
+          if (!(result.checklist.checklistItem as CheckType).fullRow) {
+            (result.checklist.checklistItem as CheckType).fullRow = false;
+          }
+          if (!(result.checklist.checklistItem as CheckType).item) {
+            (result.checklist.checklistItem as CheckType).item =
+              "Item description";
+          }
+          if (!(result.checklist.checklistItem as CheckType).action) {
+            (result.checklist.checklistItem as CheckType).action = "Action";
+          }
         }
-        if (!item.done) {
-          item.done = false;
-        }
-        if (!item.fullRow) {
-          item.fullRow = false;
-        }
-      });
+      }
+      console.log("Checklist.tsx 65 result:", result);
 
-      console.log(result);
-
-      defaultChecklist = result.root;
+      if (result) {
+        checklist = result.checklist;
+        setErr(null);
+      } else {
+        checklist = null;
+      }
 
       if (err) {
-        console.log(err);
-      }
-    }
-  );
-
-  const [checklist, setChecklist] = useState<Checklist>(defaultChecklist);
-
-  const handleClickDone = (item: string) => {
-    console.log(item);
-    checklist.checklistItem.forEach((check) => {
-      if (check.item === item) {
-        console.log("Checklist.tsx 91 found item:", check);
-        check.done = !check.done;
-        console.log("Checklist.tsx 93 found item:", check);
+        console.dir(err);
+        setErr(err);
       }
     });
+    setChecklist(checklist);
+  }, [xml]);
 
-    setChecklist({ ...checklist });
+  const handleClickDone = (item: string) => {
+    // checklist!.checklistItem.forEach((check) => {
+    //   if (check.item === item) {
+    //     check.done = !check.done;
+    //   }
+    // });
+    // setChecklist();
   };
 
-  return (
-    <Flex direction="column" p={2}>
-      <Heading>{checklist.checklistTitle}</Heading>
-      <Box p={2}>
-        {checklist.checklistItem
-          .filter((item) => {
-            if (!ffod && item.ffod) {
-              return false;
-            } else return true;
-          })
-          .map((item, i) => {
-            return (
+  const handleffodStateChange = () => {
+    setffodState(!ffodState);
+  };
+  console.log("Checklist.tsx 108 checklist:", checklist);
+
+  if (checklist && checklist.checklistItem) {
+    //@ts-ignore
+    console.log("LENGTH", checklist.checklistItem.length);
+  }
+
+  if (!checklist) {
+    return <Text>test</Text>;
+  } else {
+    return (
+      <Flex direction="column" p={2} w="100%">
+        <Button onClick={handleffodStateChange} w="90%" marginX="auto">
+          FFOD {ffodState ? <MdCheckBox /> : <MdCheckBoxOutlineBlank />}
+        </Button>
+        {checklist.checklistTitle ? (
+          <Heading textAlign="center">{checklist.checklistTitle}</Heading>
+        ) : null}
+
+        {
+          //@ts-ignore
+          checklist.checklistItem && checklist.checklistItem.length ? (
+            <Box p={2}>
+              {(checklist.checklistItem as [CheckType])
+                .filter((item) => {
+                  if (!ffodState && item.ffod) {
+                    return false;
+                  } else return true;
+                })
+                .map((item, i) => {
+                  return (
+                    <Check
+                      key={`${i}${item}`}
+                      {...item}
+                      handleClickDone={handleClickDone}
+                    />
+                  );
+                })}
+            </Box>
+          ) : checklist.checklistItem ? (
+            <Box p={2}>
               <Check
-                key={`${i}${item}`}
-                {...item}
+                key={`${(checklist.checklistItem as CheckType).item}`}
+                {...(checklist.checklistItem as CheckType)}
                 handleClickDone={handleClickDone}
               />
-            );
-          })}
-      </Box>
-    </Flex>
-  );
+            </Box>
+          ) : (
+            <Text>No Items yet</Text>
+          )
+        }
+
+        {/* {checklist.checklistItem.length &&
+        checklist.checklistItem.length > 0 ? (
+          <Box p={2}>
+            {checklist.checklistItem
+              .filter((item) => {
+                if (!ffodState && item.ffod) {
+                  return false;
+                } else return true;
+              })
+              .map((item, i) => {
+                return (
+                  <Check
+                    key={`${i}${item}`}
+                    {...item}
+                    handleClickDone={handleClickDone}
+                  />
+                );
+              })}
+          </Box>
+        ) : null} */}
+      </Flex>
+    );
+  }
 };
 
 interface CheckProps extends CheckType {
@@ -152,9 +211,11 @@ export const Check: React.FC<CheckProps> = ({
       >
         {item}
       </Text>
-      <Text fontSize="sm" color="black">
-        {action}
-      </Text>
+      {action === "Action" ? null : (
+        <Text fontSize="sm" color="black">
+          {action}
+        </Text>
+      )}
     </Flex>
   );
 };

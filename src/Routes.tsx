@@ -40,7 +40,7 @@ export const Routes = () => {
           <EditPage />
         </PrivateRoute>
         <PrivateRoute path="/checklist">
-          <Checklist />
+          <Checklist xml="" />
         </PrivateRoute>
       </Switch>
     </Flex>
