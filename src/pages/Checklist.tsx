@@ -3,6 +3,7 @@ import { firstCharLowerCase, parseBooleans } from "xml2js/lib/processors";
 import { Parser } from "xml2js";
 import { useEffect, useState } from "react";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
+import { useLocation, useParams } from "react-router";
 interface ChecklistProps {
   xml: string;
 }
@@ -43,7 +44,6 @@ export const Checklist: React.FC<ChecklistProps> = ({ xml }) => {
       if (result && result.checklist && result.checklist.checklistItem) {
         if ((result.checklist.checklistItem as [CheckType]).length > 0) {
           (result.checklist.checklistItem as [CheckType]).forEach((item) => {
-            console.log("got here");
             if (!item.ffod) {
               item.ffod = false;
             }
@@ -79,7 +79,6 @@ export const Checklist: React.FC<ChecklistProps> = ({ xml }) => {
           }
         }
       }
-      console.log("Checklist.tsx 65 result:", result);
 
       if (result) {
         checklist = result.checklist;
@@ -108,15 +107,12 @@ export const Checklist: React.FC<ChecklistProps> = ({ xml }) => {
   const handleffodStateChange = () => {
     setffodState(!ffodState);
   };
-  console.log("Checklist.tsx 108 checklist:", checklist);
 
   if (checklist && checklist.checklistItem) {
-    //@ts-ignore
-    console.log("LENGTH", checklist.checklistItem.length);
   }
 
   if (!checklist) {
-    return <Text>test</Text>;
+    return <Text>missing or invalid XML</Text>;
   } else {
     return (
       <Flex direction="column" p={2} w="100%">

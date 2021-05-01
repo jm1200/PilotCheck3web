@@ -1,6 +1,7 @@
-import { Flex, Text } from "@chakra-ui/react";
+import { Button, Flex, Input, Text } from "@chakra-ui/react";
 import { Textarea } from "@chakra-ui/react";
 import { useState } from "react";
+import { useLocation } from "react-router";
 import { Checklist } from "./Checklist";
 
 // const htmlparser2 = require("htmlparser2");
@@ -8,14 +9,53 @@ interface EditPageProps {}
 
 export const EditPage: React.FC<EditPageProps> = () => {
   const [text, setText] = useState("");
+  const [title, setTitle] = useState("");
+  const [order, setOrder] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
   };
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  };
+  const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOrder(e.target.value);
+  };
 
+  function useQuery() {
+    return new URLSearchParams(useLocation().search);
+  }
+  const query = useQuery();
+  const folderId = query.get("folderId");
+  const handleSave = () => {
+    let newChecklist = {
+      title,
+      text,
+      folderId,
+    };
+    console.log("saving: ", newChecklist);
+  };
   return (
-    <Flex w="100%">
+    <Flex w="100%" p={1} mt={2}>
       <Flex flex={1} direction="column">
+        <Flex direction="row" w="100%" justifyContent="space-between">
+          <Input
+            w="75%"
+            value={title}
+            onChange={handleTitleChange}
+            placeholder="Checklist Title: "
+            size="sm"
+          />
+          <Input
+            w="20%"
+            value={order}
+            onChange={handleOrderChange}
+            placeholder="Order "
+            size="sm"
+            type="number"
+          />
+        </Flex>
+
         <Textarea
           fontSize="12px"
           size="lg"
@@ -25,6 +65,9 @@ export const EditPage: React.FC<EditPageProps> = () => {
           onChange={handleChange}
           value={text}
         />
+        <Button my={2} mx="auto" w="90%" size="sm" onClick={handleSave}>
+          Save
+        </Button>
         <Text mt={4}>Example:</Text>
         <Text fontSize="12px" as="pre" px={2}>
           {`
