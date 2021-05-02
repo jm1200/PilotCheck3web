@@ -1,9 +1,8 @@
-import { Flex, ListItem, List, Link } from "@chakra-ui/layout";
+import { Flex } from "@chakra-ui/layout";
 import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
 import { useMeQuery } from "../generated/graphql";
 import { Folder } from "../types";
-import { Directories } from "./Directories";
+import { Directories } from "./Directories/Directories";
 
 const defaultDirectories: Folder[] = [
   {

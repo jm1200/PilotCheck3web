@@ -1,3 +1,5 @@
 Left off:
 
-edit mode button only works when folder is open...
+thinking hard about editFolder fucntion and add folder
+
+gotta do order right. splice and insert then reset orders for all elements

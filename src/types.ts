@@ -22,8 +22,8 @@ export type Signout = () => void;
 type FileId = string;
 
 interface FolderContents {
-  folders?: Folder[];
-  files?: FileId[];
+  folders: Folder[];
+  files: FileId[];
 }
 
 export interface Folder {
