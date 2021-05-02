@@ -29,8 +29,6 @@ export const AddFolderForm: React.FC<AddFolderFormProps> = ({
 
   let optArr = options(length + 1);
 
-  console.log("AddFolderForm.tsx 32 order:", order);
-
   return (
     <Flex direction="column" m={2} p={2} bgColor="gray.600" borderRadius={5}>
       <Flex></Flex>

@@ -63,6 +63,8 @@ export const Directories: React.FC<DirectoriesProps> = ({
 
   const handleDelete = (parentArray: Folder[], i: number) => {
     parentArray!.splice(i, 1);
+    //reset all orders
+    parentArray.forEach((el, i) => (el.order = i));
 
     setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
   };
