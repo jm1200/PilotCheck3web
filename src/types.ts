@@ -19,11 +19,11 @@ export type Signup = (
 
 export type Signout = () => void;
 
-type FileId = string;
+// type FileId = string;
 
 interface FolderContents {
   folders: Folder[];
-  files: FileId[];
+  files: File[];
 }
 
 export interface Folder {
@@ -33,4 +33,13 @@ export interface Folder {
   order: number;
   contents: FolderContents;
   editable: boolean;
+}
+
+export interface File {
+  title: string;
+  order: number;
+}
+
+export interface ChecklistFile extends File {
+  xml: string;
 }

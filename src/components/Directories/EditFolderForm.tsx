@@ -92,7 +92,3 @@ export const EditFolderForm: React.FC<EditFolderFormProps> = ({
     </Flex>
   );
 };
-
-interface OptionsProps {
-  length: number;
-}

@@ -1,5 +1,3 @@
 Left off:
 
-thinking hard about editFolder fucntion and add folder
-
-gotta do order right. splice and insert then reset orders for all elements
+next up is adding files.

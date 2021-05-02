@@ -1,5 +1,5 @@
-import { Flex, Text, Button, ButtonGroup } from "@chakra-ui/react";
-import { Folder } from "../../types";
+import { Flex, Text, Button, ButtonGroup, Link } from "@chakra-ui/react";
+import { File, Folder } from "../../types";
 import { EditIcon } from "@chakra-ui/icons";
 import { MdInsertDriveFile, MdFolder } from "react-icons/md";
 import { v4 as uuid } from "uuid";
@@ -29,6 +29,10 @@ export const Directories: React.FC<DirectoriesProps> = ({
   const handleClick = (folder: Folder) => {
     folder.open = !folder.open;
     setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
+  };
+
+  const handleFileClick = (file: File) => {
+    console.log(file);
   };
 
   const handleAddFolder = (
@@ -122,6 +126,7 @@ export const Directories: React.FC<DirectoriesProps> = ({
     <Flex direction="column">
       {subDirectories.map((subDirectory, i) => {
         let nextDirectories = subDirectory.contents.folders;
+        let files = subDirectory.contents.files;
         let length = 0;
         if (nextDirectories?.length) {
           length = nextDirectories.length;
@@ -138,13 +143,18 @@ export const Directories: React.FC<DirectoriesProps> = ({
           >
             <Flex w="100%" p={1} direction="column">
               <Flex w="100%">
-                <Text
-                  fontSize="14px"
-                  flex={1}
-                  onClick={() => handleClick(subDirectory)}
-                >
-                  {subDirectory.folderName}
-                </Text>
+                <Flex alignItems="center">
+                  <MdFolder fontSize="14px" />
+                  <Text
+                    ml={2}
+                    fontSize="14px"
+                    flex={1}
+                    onClick={() => handleClick(subDirectory)}
+                  >
+                    {subDirectory.folderName}
+                  </Text>
+                </Flex>
+
                 <Flex alignItems="center">
                   {subDirectory.editable && (
                     <>
@@ -202,16 +212,21 @@ export const Directories: React.FC<DirectoriesProps> = ({
                     length={length}
                   />
                 )}
-                {/* {editMode && (
-                  <EditFolderForm
-                    subDirectories={subDirectories}
-                    subDirectory={subDirectory}
-                    handleEditMode={handleEditMode}
-                    handleDelete={handleDelete}
-                    indexToDelete={i}
-                    handleEditFolder={handleEditFolder}
-                  />
-                )} */}
+
+                {files.map((file) => {
+                  return (
+                    <Flex
+                      alignItems="center"
+                      onClick={() => handleFileClick(file)}
+                    >
+                      <MdInsertDriveFile fontSize="14px" />
+                      <Link as={RouterLink} to="/asdf" ml={2}>
+                        {file.title}
+                      </Link>
+                    </Flex>
+                  );
+                })}
+
                 {nextDirectories && nextDirectories.length > 0 ? (
                   <Directories
                     topLevelDirectories={topLevelDirectories}
