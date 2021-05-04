@@ -4,6 +4,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ApolloProvider } from "@apollo/client/react";
 import { ChakraProvider } from "@chakra-ui/react";
+import "focus-visible/dist/focus-visible";
 
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import theme from "./theme";

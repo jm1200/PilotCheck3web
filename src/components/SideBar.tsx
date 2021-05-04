@@ -6,6 +6,7 @@ import { Directories } from "./Directories/Directories";
 
 const defaultFiles: ChecklistFile[] = [
   {
+    id: "asdfwegadv2323fasd",
     title: "Checklist 1",
     order: 0,
     xml: `<ChecklistTitle>First Checklist</ChecklistTitle>
@@ -28,6 +29,7 @@ const defaultFiles: ChecklistFile[] = [
 </ChecklistItem>`,
   },
   {
+    id: "asdfwesdas3",
     title: "Checklist 2",
     order: 1,
     xml: `<ChecklistTitle>Second Checklist</ChecklistTitle>
@@ -37,12 +39,7 @@ const defaultFiles: ChecklistFile[] = [
   </Action>
 </ChecklistItem>
 
-<ChecklistItem ffod="true">
-  <Item>PARK BRAKE</Item>
-  <Action>ON</Action>
-</ChecklistItem>
 
-<ChecklistItem fullRow="true"><Item>Once DU 2 is Powered</Item></ChecklistItem>
 
 <ChecklistItem done="true">
   <Item>BATT 1</Item>

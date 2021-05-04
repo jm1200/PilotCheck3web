@@ -1,5 +1,5 @@
 import { DeleteIcon } from "@chakra-ui/icons";
-import { Flex, Input, Button, Select } from "@chakra-ui/react";
+import { Flex, Input, Button, Select, Text } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Folder } from "../../types";
 import { options } from "./utils";
@@ -42,6 +42,9 @@ export const EditFolderForm: React.FC<EditFolderFormProps> = ({
 
   return (
     <Flex direction="column" m={2} p={2} bgColor="gray.600" borderRadius={5}>
+      <Text w="100%" textAlign="center" mb={1}>
+        Edit Folder
+      </Text>
       <Flex>
         <Input
           w="100%"

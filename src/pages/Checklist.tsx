@@ -1,9 +1,8 @@
 import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
-import { firstCharLowerCase, parseBooleans } from "xml2js/lib/processors";
-import { Parser } from "xml2js";
 import { useEffect, useState } from "react";
 import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
-import { useLocation, useParams } from "react-router";
+import { Parser } from "xml2js";
+import { firstCharLowerCase, parseBooleans } from "xml2js/lib/processors";
 interface ChecklistProps {
   xml: string;
 }
@@ -34,7 +33,7 @@ class CheckType {
 
 export const Checklist: React.FC<ChecklistProps> = ({ xml }) => {
   const [checklist, setChecklist] = useState<ChecklistType | null>(null);
-  const [err, setErr] = useState<any>("");
+
   const [ffodState, setffodState] = useState(false);
 
   useEffect(() => {
@@ -82,14 +81,12 @@ export const Checklist: React.FC<ChecklistProps> = ({ xml }) => {
 
       if (result) {
         checklist = result.checklist;
-        setErr(null);
       } else {
         checklist = null;
       }
 
       if (err) {
         console.dir(err);
-        setErr(err);
       }
     });
     setChecklist(checklist);

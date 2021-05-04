@@ -1,13 +1,13 @@
-import { Switch, Route, RouteProps, useHistory } from "react-router-dom";
-import { Login } from "./pages/login";
-import { Register } from "./pages/register";
-import { Wrapper } from "./components/Wrapper";
 import { Flex } from "@chakra-ui/layout";
+import { Route, RouteProps, Switch, useHistory } from "react-router-dom";
+import { Wrapper } from "./components/Wrapper";
+import { useMeQuery } from "./generated/graphql";
+import { Checklist } from "./pages/Checklist";
 import { EditPage } from "./pages/EditPage";
+import { Login } from "./pages/login";
 import { ProtectedHome } from "./pages/ProtectedHome";
 import { PublicHome } from "./pages/PublicHome";
-import { Checklist } from "./pages/Checklist";
-import { useMeQuery } from "./generated/graphql";
+import { Register } from "./pages/register";
 
 function ProtectedPage() {
   return <h3>Protected</h3>;
@@ -36,7 +36,7 @@ export const Routes = () => {
         <PrivateRoute path="/protected">
           <ProtectedPage />
         </PrivateRoute>
-        <PrivateRoute path="/edit-page">
+        <PrivateRoute>
           <EditPage />
         </PrivateRoute>
         <PrivateRoute path="/checklist">

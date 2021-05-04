@@ -1,4 +1,4 @@
-import { Flex, Input, Button, Select } from "@chakra-ui/react";
+import { Flex, Input, Button, Select, Text } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Folder } from "../../types";
 import { options } from "./utils";
@@ -31,7 +31,9 @@ export const AddFolderForm: React.FC<AddFolderFormProps> = ({
 
   return (
     <Flex direction="column" m={2} p={2} bgColor="gray.600" borderRadius={5}>
-      <Flex></Flex>
+      <Text w="100%" textAlign="center" mb={1}>
+        Add Folder
+      </Text>
       <Flex>
         <Input
           w="100%"

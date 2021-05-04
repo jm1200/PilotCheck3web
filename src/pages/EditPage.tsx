@@ -1,16 +1,20 @@
-import { Button, Flex, Input, Text } from "@chakra-ui/react";
+import { Button, Flex, Input, Select, Text } from "@chakra-ui/react";
 import { Textarea } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
+import { options } from "../components/Directories/utils";
+import { Folder, File } from "../types";
 import { Checklist } from "./Checklist";
 
 // const htmlparser2 = require("htmlparser2");
 interface EditPageProps {}
 
 export const EditPage: React.FC<EditPageProps> = () => {
-  const [text, setText] = useState("");
-  const [title, setTitle] = useState("");
-  const [order, setOrder] = useState("");
+  const { state } = useLocation<{ file: File; folder: Folder }>();
+
+  const [text, setText] = useState(state.file.xml);
+  const [title, setTitle] = useState(state.file.title);
+  const [order, setOrder] = useState(state.file.order);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -18,23 +22,33 @@ export const EditPage: React.FC<EditPageProps> = () => {
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
   };
-  const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOrder(e.target.value);
+  const handleOrderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setOrder(parseInt(e.target.value));
   };
 
-  function useQuery() {
-    return new URLSearchParams(useLocation().search);
-  }
-  const query = useQuery();
-  const folderId = query.get("folderId");
+  useEffect(() => {
+    let { order, title, xml } = state.file;
+    setText(xml);
+    setOrder(order + 1);
+    setTitle(title);
+  }, [state]);
+
+  // function useQuery() {
+  //   return new URLSearchParams(useLocation().search);
+  // }
+  // const query = useQuery();
+  // const folderId = query.get("folderId");
+  let optArr = options(order);
+
   const handleSave = () => {
     let newChecklist = {
       title,
       text,
-      folderId,
+      folderId: state.folder.id,
     };
     console.log("saving: ", newChecklist);
   };
+
   return (
     <Flex w="100%" p={1} mt={2}>
       <Flex flex={1} direction="column">
@@ -46,14 +60,17 @@ export const EditPage: React.FC<EditPageProps> = () => {
             placeholder="Checklist Title: "
             size="sm"
           />
-          <Input
+          {/* <Input
             w="20%"
             value={order}
             onChange={handleOrderChange}
             placeholder="Order "
             size="sm"
             type="number"
-          />
+          /> */}
+          <Select w="20%" value={order - 1} onChange={handleOrderChange}>
+            {optArr.map((option) => option)}
+          </Select>
         </Flex>
 
         <Textarea

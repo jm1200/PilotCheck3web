@@ -36,8 +36,10 @@ export interface Folder {
 }
 
 export interface File {
+  id: string;
   title: string;
   order: number;
+  xml: string;
 }
 
 export interface ChecklistFile extends File {

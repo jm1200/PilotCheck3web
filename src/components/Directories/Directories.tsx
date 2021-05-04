@@ -1,10 +1,26 @@
-import { Flex, Text, Button, ButtonGroup, Link } from "@chakra-ui/react";
-import { File, Folder } from "../../types";
 import { EditIcon } from "@chakra-ui/icons";
-import { MdInsertDriveFile, MdFolder } from "react-icons/md";
-import { v4 as uuid } from "uuid";
-import { Link as RouterLink } from "react-router-dom";
+import {
+  Button,
+  ButtonGroup,
+  Flex,
+  Icon,
+  IconButton,
+  Link,
+  Text,
+} from "@chakra-ui/react";
 import { useState } from "react";
+import {
+  MdFolder,
+  MdInsertDriveFile,
+  MdExpandLess,
+  MdExpandMore,
+  MdChevronRight,
+  MdCreateNewFolder,
+  MdNoteAdd,
+} from "react-icons/md";
+import { Link as RouterLink } from "react-router-dom";
+import { v4 as uuid } from "uuid";
+import { Folder } from "../../types";
 import { AddFolderForm } from "./AddFolderForm";
 import { EditFolderForm } from "./EditFolderForm";
 
@@ -23,16 +39,10 @@ export const Directories: React.FC<DirectoriesProps> = ({
 }) => {
   const [editMode, setEditMode] = useState("");
   const [addMode, setAddMode] = useState(false);
-  // const [newFolderTitle, setNewFolderTitle] = useState("");
-  // const [order, setOrder] = useState(0);
 
   const handleClick = (folder: Folder) => {
     folder.open = !folder.open;
     setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
-  };
-
-  const handleFileClick = (file: File) => {
-    console.log(file);
   };
 
   const handleAddFolder = (
@@ -72,18 +82,6 @@ export const Directories: React.FC<DirectoriesProps> = ({
 
     setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
   };
-
-  // const handleOrder = (
-  //   parentArray: Folder[],
-  //   folder: Folder,
-  //   oldIndex: number
-  // ) => {
-  //   const newOrder = 1;
-  //   parentArray!.splice(oldIndex, 1);
-  //   parentArray!.splice(newOrder, 0, folder);
-
-  //   setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
-  // };
 
   const handleEditFolder = (
     parentArray: Folder[],
@@ -141,9 +139,9 @@ export const Directories: React.FC<DirectoriesProps> = ({
             mt={2}
             direction="column"
           >
-            <Flex w="100%" p={1} direction="column">
+            <Flex w="100%" direction="column">
               <Flex w="100%">
-                <Flex alignItems="center">
+                <Flex alignItems="center" w="100%">
                   <MdFolder fontSize="14px" />
                   <Text
                     ml={2}
@@ -153,21 +151,39 @@ export const Directories: React.FC<DirectoriesProps> = ({
                   >
                     {subDirectory.folderName}
                   </Text>
-                </Flex>
-
-                <Flex alignItems="center">
-                  {subDirectory.editable && (
-                    <>
-                      <EditIcon
-                        mr={3}
-                        boxSize={3}
-                        onClick={() =>
-                          // handleEdit(subDirectories, i, subDirectory)
-                          handleEditMode(subDirectory.id)
-                        }
-                      />
-                    </>
+                  {subDirectory.open && (
+                    <Flex alignItems="center">
+                      <MdCreateNewFolder onClick={handleAddMode} />
+                      <Link
+                        mx={1}
+                        p={1}
+                        outline="false"
+                        aria-label="add file"
+                        as={RouterLink}
+                        to={{
+                          pathname: `/edit-page?folderId=${subDirectory.id}`,
+                          state: {
+                            folder: subDirectory,
+                            file: {
+                              xml: "",
+                              title: "",
+                              order: subDirectory.contents.files.length,
+                            },
+                          },
+                        }}
+                      >
+                        <MdNoteAdd />
+                      </Link>
+                    </Flex>
                   )}
+                  {subDirectory.editable && (
+                    <EditIcon
+                      mr={3}
+                      boxSize={3}
+                      onClick={() => handleEditMode(subDirectory.id)}
+                    />
+                  )}
+                  {subDirectory.open ? <MdExpandMore /> : <MdChevronRight />}
                 </Flex>
               </Flex>
               {editMode === subDirectory.id && (
@@ -184,25 +200,42 @@ export const Directories: React.FC<DirectoriesProps> = ({
 
             {subDirectory.open ? (
               <>
-                <ButtonGroup
-                  p={2}
-                  size="xs"
-                  spacing="3"
-                  justifyContent="center"
-                >
-                  <Button fontSize="10px" flex={1} onClick={handleAddMode}>
-                    <MdFolder fontSize="14px" /> <Text ml={1}>Add Folder</Text>
-                  </Button>
-                  <Button
-                    as={RouterLink}
-                    to={`/edit-page?folderId=${subDirectory.id}`}
-                    fontSize="10px"
-                    flex={1}
-                  >
-                    <MdInsertDriveFile fontSize="14px" />
-                    <Text ml={1}>Add File</Text>
-                  </Button>
-                </ButtonGroup>
+                {/* <Flex justifyContent="flex-end">
+                  <Flex w="90px" mr={2}>
+                    <Button
+                      h="20px"
+                      fontSize="10px"
+                      flex={1}
+                      onClick={handleAddMode}
+                    >
+                      <MdFolder fontSize="14px" />{" "}
+                      <Text ml={1}>Add Folder</Text>
+                    </Button>
+                  </Flex>
+                  <Flex w="90px" mr={2}>
+                    <Button
+                      w="50px"
+                      h="20px"
+                      as={RouterLink}
+                      to={{
+                        pathname: `/edit-page?folderId=${subDirectory.id}`,
+                        state: {
+                          folder: subDirectory,
+                          file: {
+                            xml: "",
+                            title: "",
+                            order: subDirectory.contents.files.length,
+                          },
+                        },
+                      }}
+                      fontSize="10px"
+                      flex={1}
+                    >
+                      <MdInsertDriveFile fontSize="14px" />
+                      <Text ml={1}>Add File</Text>
+                    </Button>
+                  </Flex>
+                </Flex> */}
 
                 {addMode && (
                   <AddFolderForm
@@ -215,13 +248,17 @@ export const Directories: React.FC<DirectoriesProps> = ({
 
                 {files.map((file) => {
                   return (
-                    <Flex
-                      alignItems="center"
-                      onClick={() => handleFileClick(file)}
-                    >
+                    <Flex alignItems="center" key={file.id}>
                       <MdInsertDriveFile fontSize="14px" />
-                      <Link as={RouterLink} to="/asdf" ml={2}>
-                        {file.title}
+                      <Link
+                        as={RouterLink}
+                        to={{
+                          pathname: `/edit-page`,
+                          state: { file, folder: subDirectory },
+                        }}
+                        ml={2}
+                      >
+                        <Text fontSize="12px">{file.title}</Text>
                       </Link>
                     </Flex>
                   );
@@ -234,13 +271,13 @@ export const Directories: React.FC<DirectoriesProps> = ({
                     depth={depth + 1}
                     setDirectories={setDirectories}
                   />
-                ) : (
+                ) : files.length === 0 ? (
                   <>
                     <Text w="100%" textAlign="center" fontSize="12px">
                       Folder is empty!
                     </Text>
                   </>
-                )}
+                ) : null}
               </>
             ) : null}
           </Flex>
