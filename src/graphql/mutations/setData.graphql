@@ -1,0 +1,3 @@
+mutation SetData {
+  setData(directories: "test directory")
+}

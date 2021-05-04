@@ -28,9 +28,9 @@ interface FolderContents {
 
 export interface Folder {
   id: string;
-  open: boolean;
-  folderName: string;
+  title: string;
   order: number;
+  open: boolean;
   contents: FolderContents;
   editable: boolean;
 }

@@ -1,0 +1,6 @@
+query UserData {
+  userData {
+    id
+    directories
+  }
+}

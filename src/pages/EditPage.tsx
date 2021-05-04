@@ -7,9 +7,16 @@ import { Folder, File } from "../types";
 import { Checklist } from "./Checklist";
 
 // const htmlparser2 = require("htmlparser2");
-interface EditPageProps {}
+interface EditPageProps {
+  handleAddFile?: (
+    title: string,
+    xml: string,
+    order: number,
+    subDirectory: Folder
+  ) => void;
+}
 
-export const EditPage: React.FC<EditPageProps> = () => {
+export const EditPage: React.FC<EditPageProps> = ({ handleAddFile }) => {
   const { state } = useLocation<{ file: File; folder: Folder }>();
 
   const [text, setText] = useState(state.file.xml);
@@ -33,20 +40,20 @@ export const EditPage: React.FC<EditPageProps> = () => {
     setTitle(title);
   }, [state]);
 
-  // function useQuery() {
-  //   return new URLSearchParams(useLocation().search);
-  // }
-  // const query = useQuery();
-  // const folderId = query.get("folderId");
   let optArr = options(order);
 
   const handleSave = () => {
     let newChecklist = {
       title,
+      order,
       text,
-      folderId: state.folder.id,
+      folderId: state.folder,
     };
-    console.log("saving: ", newChecklist);
+
+    if (handleAddFile) {
+      handleAddFile(title, text, order, state.folder);
+      console.log("saving: ", newChecklist);
+    }
   };
 
   return (

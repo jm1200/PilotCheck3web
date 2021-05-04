@@ -1,21 +1,12 @@
 import { EditIcon } from "@chakra-ui/icons";
-import {
-  Button,
-  ButtonGroup,
-  Flex,
-  Icon,
-  IconButton,
-  Link,
-  Text,
-} from "@chakra-ui/react";
+import { Flex, Link, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import {
-  MdFolder,
-  MdInsertDriveFile,
-  MdExpandLess,
-  MdExpandMore,
   MdChevronRight,
   MdCreateNewFolder,
+  MdExpandMore,
+  MdFolder,
+  MdInsertDriveFile,
   MdNoteAdd,
 } from "react-icons/md";
 import { Link as RouterLink } from "react-router-dom";
@@ -38,7 +29,7 @@ export const Directories: React.FC<DirectoriesProps> = ({
   depth,
 }) => {
   const [editMode, setEditMode] = useState("");
-  const [addMode, setAddMode] = useState(false);
+  const [addMode, setAddMode] = useState("");
 
   const handleClick = (folder: Folder) => {
     folder.open = !folder.open;
@@ -52,7 +43,7 @@ export const Directories: React.FC<DirectoriesProps> = ({
   ) => {
     const newObj: Folder = {
       contents: { folders: [], files: [] },
-      folderName: title,
+      title: title,
       id: uuid(),
       open: false,
       order: order,
@@ -71,9 +62,33 @@ export const Directories: React.FC<DirectoriesProps> = ({
       parentFolderArray.forEach((el, i) => (el.order = i));
     }
 
-    setAddMode(false);
+    setAddMode("");
     setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
   };
+
+  // const handleAddFile = (
+  //   title: string,
+  //   xml: string,
+  //   order: number,
+  //   subDirectory: Folder
+  // ) => {
+  //   const newFile: File = {
+  //     id: uuid(),
+  //     title,
+  //     order,
+  //     xml,
+  //   };
+
+  //   let parent = subDirectory.contents.files;
+  //   if (parent.length === 0) {
+  //     parent.push(newFile);
+  //   } else {
+  //     parent.splice(order, 0, newFile);
+
+  //     //reset all orders
+  //     parent.forEach((el, i) => (el.order = i));
+  //   }
+  // };
 
   const handleDelete = (parentArray: Folder[], i: number) => {
     parentArray!.splice(i, 1);
@@ -93,7 +108,7 @@ export const Directories: React.FC<DirectoriesProps> = ({
     let tempEdit: Folder = {
       ...directory,
       open: false,
-      folderName: title,
+      title: title,
       order,
     };
     //get rid of old index
@@ -108,16 +123,21 @@ export const Directories: React.FC<DirectoriesProps> = ({
   };
 
   const handleEditMode = (id: string) => {
-    setAddMode(false);
+    setAddMode("");
     if (editMode === "") {
       setEditMode(id);
     } else {
       setEditMode("");
     }
   };
-  const handleAddMode = () => {
+  const handleAddMode = (id: string) => {
     setEditMode("");
-    setAddMode(!addMode);
+
+    if (addMode === "" || addMode !== id) {
+      setAddMode(id);
+    } else {
+      setAddMode("");
+    }
   };
 
   return (
@@ -149,11 +169,13 @@ export const Directories: React.FC<DirectoriesProps> = ({
                     flex={1}
                     onClick={() => handleClick(subDirectory)}
                   >
-                    {subDirectory.folderName}
+                    {subDirectory.title}
                   </Text>
                   {subDirectory.open && (
                     <Flex alignItems="center">
-                      <MdCreateNewFolder onClick={handleAddMode} />
+                      <MdCreateNewFolder
+                        onClick={() => handleAddMode(subDirectory.id)}
+                      />
                       <Link
                         mx={1}
                         p={1}
@@ -161,7 +183,7 @@ export const Directories: React.FC<DirectoriesProps> = ({
                         aria-label="add file"
                         as={RouterLink}
                         to={{
-                          pathname: `/edit-page?folderId=${subDirectory.id}`,
+                          pathname: `/edit-page`,
                           state: {
                             folder: subDirectory,
                             file: {
@@ -200,46 +222,9 @@ export const Directories: React.FC<DirectoriesProps> = ({
 
             {subDirectory.open ? (
               <>
-                {/* <Flex justifyContent="flex-end">
-                  <Flex w="90px" mr={2}>
-                    <Button
-                      h="20px"
-                      fontSize="10px"
-                      flex={1}
-                      onClick={handleAddMode}
-                    >
-                      <MdFolder fontSize="14px" />{" "}
-                      <Text ml={1}>Add Folder</Text>
-                    </Button>
-                  </Flex>
-                  <Flex w="90px" mr={2}>
-                    <Button
-                      w="50px"
-                      h="20px"
-                      as={RouterLink}
-                      to={{
-                        pathname: `/edit-page?folderId=${subDirectory.id}`,
-                        state: {
-                          folder: subDirectory,
-                          file: {
-                            xml: "",
-                            title: "",
-                            order: subDirectory.contents.files.length,
-                          },
-                        },
-                      }}
-                      fontSize="10px"
-                      flex={1}
-                    >
-                      <MdInsertDriveFile fontSize="14px" />
-                      <Text ml={1}>Add File</Text>
-                    </Button>
-                  </Flex>
-                </Flex> */}
-
-                {addMode && (
+                {addMode === subDirectory.id && (
                   <AddFolderForm
-                    handleAddMode={handleAddMode}
+                    handleAddMode={() => handleAddMode(subDirectory.id)}
                     handleAddFolder={handleAddFolder}
                     subDirectory={subDirectory}
                     length={length}

@@ -27,7 +27,7 @@ export const EditFolderForm: React.FC<EditFolderFormProps> = ({
   handleDelete,
   indexToDelete,
 }) => {
-  const [title, setTitle] = useState(subDirectory.folderName);
+  const [title, setTitle] = useState(subDirectory.title);
   const [order, setOrder] = useState(subDirectory.order);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

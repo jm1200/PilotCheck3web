@@ -12,6 +12,14 @@ export type Scalars = {
   Float: number;
 };
 
+export type Data = {
+  __typename?: 'Data';
+  id: Scalars['String'];
+  directories: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
 export type EmailPasswordInput = {
   email: Scalars['String'];
   password: Scalars['String'];
@@ -25,9 +33,15 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  setData: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+};
+
+
+export type MutationSetDataArgs = {
+  directories: Scalars['String'];
 };
 
 
@@ -43,6 +57,7 @@ export type MutationLoginArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  userData?: Maybe<Data>;
   hello: Scalars['String'];
   getUsers: Array<User>;
   me?: Maybe<User>;
@@ -52,6 +67,8 @@ export type User = {
   __typename?: 'User';
   id: Scalars['Float'];
   email: Scalars['String'];
+  dataId: Scalars['String'];
+  data: Data;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -69,7 +86,7 @@ export type RegularErrorFragment = (
 
 export type RegularUserFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'email'>
+  & Pick<User, 'id' | 'email' | 'dataId'>
 );
 
 export type RegularUserResponseFragment = (
@@ -118,6 +135,14 @@ export type RegisterMutation = (
   ) }
 );
 
+export type SetDataMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SetDataMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'setData'>
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -126,6 +151,17 @@ export type MeQuery = (
   & { me?: Maybe<(
     { __typename?: 'User' }
     & RegularUserFragment
+  )> }
+);
+
+export type UserDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UserDataQuery = (
+  { __typename?: 'Query' }
+  & { userData?: Maybe<(
+    { __typename?: 'Data' }
+    & Pick<Data, 'id' | 'directories'>
   )> }
 );
 
@@ -139,6 +175,7 @@ export const RegularUserFragmentDoc = gql`
     fragment RegularUser on User {
   id
   email
+  dataId
 }
     `;
 export const RegularUserResponseFragmentDoc = gql`
@@ -249,6 +286,36 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const SetDataDocument = gql`
+    mutation SetData {
+  setData(directories: "test directory")
+}
+    `;
+export type SetDataMutationFn = Apollo.MutationFunction<SetDataMutation, SetDataMutationVariables>;
+
+/**
+ * __useSetDataMutation__
+ *
+ * To run a mutation, you first call `useSetDataMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetDataMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setDataMutation, { data, loading, error }] = useSetDataMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSetDataMutation(baseOptions?: Apollo.MutationHookOptions<SetDataMutation, SetDataMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetDataMutation, SetDataMutationVariables>(SetDataDocument, options);
+      }
+export type SetDataMutationHookResult = ReturnType<typeof useSetDataMutation>;
+export type SetDataMutationResult = Apollo.MutationResult<SetDataMutation>;
+export type SetDataMutationOptions = Apollo.BaseMutationOptions<SetDataMutation, SetDataMutationVariables>;
 export const MeDocument = gql`
     query Me {
   me {
@@ -283,3 +350,38 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const UserDataDocument = gql`
+    query UserData {
+  userData {
+    id
+    directories
+  }
+}
+    `;
+
+/**
+ * __useUserDataQuery__
+ *
+ * To run a query within a React component, call `useUserDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserDataQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUserDataQuery(baseOptions?: Apollo.QueryHookOptions<UserDataQuery, UserDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserDataQuery, UserDataQueryVariables>(UserDataDocument, options);
+      }
+export function useUserDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserDataQuery, UserDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserDataQuery, UserDataQueryVariables>(UserDataDocument, options);
+        }
+export type UserDataQueryHookResult = ReturnType<typeof useUserDataQuery>;
+export type UserDataLazyQueryHookResult = ReturnType<typeof useUserDataLazyQuery>;
+export type UserDataQueryResult = Apollo.QueryResult<UserDataQuery, UserDataQueryVariables>;
