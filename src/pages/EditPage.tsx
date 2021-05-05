@@ -3,21 +3,25 @@ import { Textarea } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { options } from "../components/Directories/utils";
+// import { useData } from "../Providers/DataProvider";
 import { Folder, File } from "../types";
 import { Checklist } from "./Checklist";
+import { v4 as uuid } from "uuid";
+import {
+  UserDataDocument,
+  UserDataQuery,
+  useSetDataMutation,
+  useUserDataQuery,
+} from "../generated/graphql";
 
 // const htmlparser2 = require("htmlparser2");
-interface EditPageProps {
-  handleAddFile?: (
-    title: string,
-    xml: string,
-    order: number,
-    subDirectory: Folder
-  ) => void;
-}
+interface EditPageProps {}
 
-export const EditPage: React.FC<EditPageProps> = ({ handleAddFile }) => {
+export const EditPage: React.FC<EditPageProps> = () => {
   const { state } = useLocation<{ file: File; folder: Folder }>();
+  const { data: userData, loading: useDataLoading } = useUserDataQuery();
+
+  const [setData] = useSetDataMutation();
 
   const [text, setText] = useState(state.file.xml);
   const [title, setTitle] = useState(state.file.title);
@@ -42,17 +46,75 @@ export const EditPage: React.FC<EditPageProps> = ({ handleAddFile }) => {
 
   let optArr = options(order);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let newChecklist = {
+      id: uuid(),
       title,
       order,
-      text,
-      folderId: state.folder,
+      xml: text,
+      folderId: state.folder.id,
     };
 
-    if (handleAddFile) {
-      handleAddFile(title, text, order, state.folder);
-      console.log("saving: ", newChecklist);
+    if (userData) {
+      console.log(
+        "EditPage.tsx 55 userData:",
+        JSON.parse(userData.userData!.directories)
+      );
+      console.log("EditPage.tsx 56 state:", state);
+
+      const { directories, id } = userData.userData!;
+
+      const oldDirectories = JSON.parse(directories);
+      let newData = {
+        __typeName: "Data",
+        id,
+        directories: JSON.stringify(oldDirectories),
+      };
+
+      const addFile = (directories: Folder[], newFile: File) => {
+        directories.forEach((directory) => {
+          if (directory.id === state.folder.id) {
+            directory.contents.files.push(newFile);
+            console.log("Found folder");
+            return;
+          } else if (directory.contents.folders.length > 0) {
+            addFile(directory.contents.folders, newFile);
+          }
+          return;
+        });
+      };
+
+      addFile(oldDirectories, newChecklist);
+
+      console.log("EditPage.tsx 73 oldDirectories:", oldDirectories);
+
+      const res = await setData({
+        variables: { directories: JSON.stringify(oldDirectories) },
+        update: (cache, { data }) => {
+          console.log(
+            "EditPage.tsx 94 inside write cache :",
+            JSON.parse(data!.setData.directories)
+          );
+          cache.writeQuery<UserDataQuery>({
+            query: UserDataDocument,
+            data: {
+              userData: {
+                ...newData,
+                directories: JSON.stringify(oldDirectories),
+              },
+            },
+          });
+        },
+      });
+      console.log(
+        "EditPage.tsx 74 res:",
+        JSON.parse(res.data!.setData!.directories)
+      );
+
+      // if (handleAddFile) {
+      //   handleAddFile(title, text, order, state.folder);
+      //   console.log("saving: ", newChecklist);
+      // }
     }
   };
 

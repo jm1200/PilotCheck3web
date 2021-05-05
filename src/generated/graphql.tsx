@@ -33,7 +33,7 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  setData: Scalars['Boolean'];
+  setData: Data;
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
@@ -135,12 +135,17 @@ export type RegisterMutation = (
   ) }
 );
 
-export type SetDataMutationVariables = Exact<{ [key: string]: never; }>;
+export type SetDataMutationVariables = Exact<{
+  directories: Scalars['String'];
+}>;
 
 
 export type SetDataMutation = (
   { __typename?: 'Mutation' }
-  & Pick<Mutation, 'setData'>
+  & { setData: (
+    { __typename?: 'Data' }
+    & Pick<Data, 'directories' | 'id'>
+  ) }
 );
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -287,8 +292,11 @@ export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
 export const SetDataDocument = gql`
-    mutation SetData {
-  setData(directories: "test directory")
+    mutation SetData($directories: String!) {
+  setData(directories: $directories) {
+    directories
+    id
+  }
 }
     `;
 export type SetDataMutationFn = Apollo.MutationFunction<SetDataMutation, SetDataMutationVariables>;
@@ -306,6 +314,7 @@ export type SetDataMutationFn = Apollo.MutationFunction<SetDataMutation, SetData
  * @example
  * const [setDataMutation, { data, loading, error }] = useSetDataMutation({
  *   variables: {
+ *      directories: // value for 'directories'
  *   },
  * });
  */

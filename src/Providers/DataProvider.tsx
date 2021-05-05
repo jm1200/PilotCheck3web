@@ -15,27 +15,31 @@ const useProvideData = () => {
     loading: userDataLoading,
   } = useUserDataQuery();
 
+  console.log(userData);
+
   if (error) {
     console.log("DataProvider.tsx 13 error:", error);
   }
 
-  const [data, setData] = useState("");
+  // const [data, setData] = useState("");
 
-  useEffect(() => {
-    if (userData?.userData?.directories) {
-      setData(userData?.userData?.directories);
-    }
-  }, [userData]);
+  // useEffect(() => {
+  //   if (userData?.userData?.directories) {
+  //     console.log("DataProvider.tsx 25 useEffect running:");
+  //     setData(userData?.userData?.directories);
+  //   }
+  // }, [userData]);
 
-  return {
-    userData: data,
-    userDataLoading,
-  };
+  // return {
+  //   userData: data,
+  //   userDataLoading,
+  // };
 };
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const value = useProvideData();
-  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+  // return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+  return null;
 };
 
 export const useData = () => {

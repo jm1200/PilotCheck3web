@@ -10,15 +10,15 @@ import { Routes } from "./Routes";
 function App() {
   return (
     <AuthProvider>
-      <DataProvider>
-        <Router>
-          <NavBar />
-          <Flex w="100%">
-            <Sidebar />
-            <Routes />
-          </Flex>
-        </Router>
-      </DataProvider>
+      {/* <DataProvider> */}
+      <Router>
+        <NavBar />
+        <Flex w="100%">
+          <Sidebar />
+          <Routes />
+        </Flex>
+      </Router>
+      {/* </DataProvider> */}
     </AuthProvider>
   );
 }

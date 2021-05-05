@@ -37,7 +37,6 @@ export const EditFolderForm: React.FC<EditFolderFormProps> = ({
   const handleOrderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setOrder(parseInt(e.target.value));
   };
-
   let optArr = options(subDirectories.length);
 
   return (

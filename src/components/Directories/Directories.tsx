@@ -231,7 +231,7 @@ export const Directories: React.FC<DirectoriesProps> = ({
                   />
                 )}
 
-                {files.map((file) => {
+                {files.map((file, i) => {
                   return (
                     <Flex alignItems="center" key={file.id}>
                       <MdInsertDriveFile fontSize="14px" />
@@ -239,7 +239,11 @@ export const Directories: React.FC<DirectoriesProps> = ({
                         as={RouterLink}
                         to={{
                           pathname: `/edit-page`,
-                          state: { file, folder: subDirectory },
+                          state: {
+                            file,
+                            folder: subDirectory,
+                            indexToDelete: i,
+                          },
                         }}
                         ml={2}
                       >

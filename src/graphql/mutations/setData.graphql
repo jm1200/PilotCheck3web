@@ -1,3 +1,6 @@
-mutation SetData {
-  setData(directories: "test directory")
+mutation SetData($directories: String!) {
+  setData(directories: $directories) {
+    directories
+    id
+  }
 }
