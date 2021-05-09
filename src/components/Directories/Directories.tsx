@@ -11,6 +11,12 @@ import {
 } from "react-icons/md";
 import { Link as RouterLink } from "react-router-dom";
 import { v4 as uuid } from "uuid";
+import {
+  UserDataDocument,
+  UserDataQuery,
+  useSetDataMutation,
+} from "../../generated/graphql";
+import { useAuth } from "../../Providers/AuthProvider";
 import { Folder } from "../../types";
 import { AddFolderForm } from "./AddFolderForm";
 import { EditFolderForm } from "./EditFolderForm";
@@ -30,13 +36,16 @@ export const Directories: React.FC<DirectoriesProps> = ({
 }) => {
   const [editMode, setEditMode] = useState("");
   const [addMode, setAddMode] = useState("");
+  const [setData] = useSetDataMutation();
+  const { user } = useAuth();
+  const { id } = user!.me!.data;
 
   const handleClick = (folder: Folder) => {
     folder.open = !folder.open;
     setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
   };
 
-  const handleAddFolder = (
+  const handleAddFolder = async (
     title: string,
     order: number,
     subDirectory: Folder
@@ -63,18 +72,56 @@ export const Directories: React.FC<DirectoriesProps> = ({
     }
 
     setAddMode("");
-    setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
+    // setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
+
+    try {
+      await setData({
+        variables: { directories: JSON.stringify(topLevelDirectories) },
+        update: (cache) => {
+          cache.writeQuery<UserDataQuery>({
+            query: UserDataDocument,
+            data: {
+              userData: {
+                __typename: "Data",
+                id,
+                directories: JSON.stringify(topLevelDirectories),
+              },
+            },
+          });
+        },
+      });
+    } catch (error) {
+      console.log("error setting data from edit page", error);
+    }
   };
 
-  const handleDelete = (parentArray: Folder[], i: number) => {
+  const handleDelete = async (parentArray: Folder[], i: number) => {
     parentArray!.splice(i, 1);
     //reset all orders
     parentArray.forEach((el, i) => (el.order = i));
 
-    setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
+    try {
+      await setData({
+        variables: { directories: JSON.stringify(topLevelDirectories) },
+        update: (cache) => {
+          cache.writeQuery<UserDataQuery>({
+            query: UserDataDocument,
+            data: {
+              userData: {
+                __typename: "Data",
+                id,
+                directories: JSON.stringify(topLevelDirectories),
+              },
+            },
+          });
+        },
+      });
+    } catch (error) {
+      console.log("error setting data from edit page", error);
+    }
   };
 
-  const handleEditFolder = (
+  const handleEditFolder = async (
     parentArray: Folder[],
     i: number,
     directory: Folder,
@@ -94,8 +141,27 @@ export const Directories: React.FC<DirectoriesProps> = ({
     //insert new
     parentArray!.splice(order, 0, tempEdit);
     parentArray.forEach((el, i) => (el.order = i));
-    setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
     setEditMode("");
+
+    try {
+      await setData({
+        variables: { directories: JSON.stringify(topLevelDirectories) },
+        update: (cache) => {
+          cache.writeQuery<UserDataQuery>({
+            query: UserDataDocument,
+            data: {
+              userData: {
+                __typename: "Data",
+                id,
+                directories: JSON.stringify(topLevelDirectories),
+              },
+            },
+          });
+        },
+      });
+    } catch (error) {
+      console.log("error setting data from edit page", error);
+    }
   };
 
   const handleEditMode = (id: string) => {

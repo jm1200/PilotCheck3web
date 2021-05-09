@@ -67,6 +67,8 @@ export const EditPage: React.FC<EditPageProps> = () => {
 
   const handleSave = async () => {
     const { id } = user!.me!.data;
+    console.log("EditPage.tsx 70 id:", id);
+    console.log("EditPage.tsx 71 subDirectory.id:", state.folder.id);
     const oldDirectories = state.topLevelDirectories;
 
     let checklist: File;
@@ -81,7 +83,7 @@ export const EditPage: React.FC<EditPageProps> = () => {
     try {
       await setData({
         variables: { directories: JSON.stringify(oldDirectories) },
-        update: (cache, { data }) => {
+        update: (cache) => {
           cache.writeQuery<UserDataQuery>({
             query: UserDataDocument,
             data: {
