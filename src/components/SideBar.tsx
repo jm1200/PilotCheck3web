@@ -10,7 +10,6 @@ import { useAuth } from "../Providers/AuthProvider";
 export const Sidebar = () => {
   const { loadingAuth, user } = useAuth();
   const [directories, setDirectories] = useState<Folder[]>();
-  console.log("SideBar.tsx 13 user, directories:", user, directories);
 
   useEffect(() => {
     if (user?.me?.data.directories) {

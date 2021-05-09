@@ -1,11 +1,12 @@
 import React from "react";
 import { Formik, Form } from "formik";
-import { Box, Button } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
 import { toErrorMap } from "../utils/toErrorMap";
 import { useAuth } from "../Providers/AuthProvider";
 import { RouteProps, useHistory } from "react-router";
+import { CustomButton } from "../components/form/CustomButton";
 
 export const Login: React.FC<RouteProps> = ({ location }) => {
   const { signin } = useAuth();
@@ -43,16 +44,7 @@ export const Login: React.FC<RouteProps> = ({ location }) => {
               />
             </Box>
 
-            <Button
-              mt={4}
-              type="submit"
-              isLoading={isSubmitting}
-              colorScheme="teal"
-              data-testid="loginSubmit"
-            >
-              login
-              {/* <TestIdWrapper id="loginSubmit">login</TestIdWrapper> */}
-            </Button>
+            <CustomButton mt={4} isLoading={isSubmitting} text="Login" />
           </Form>
         )}
       </Formik>

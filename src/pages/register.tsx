@@ -1,11 +1,12 @@
 import React from "react";
 import { Formik, Form } from "formik";
-import { Box, Button } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
 import { toErrorMap } from "../utils/toErrorMap";
 import { useAuth } from "../Providers/AuthProvider";
 import { useHistory, useLocation } from "react-router";
+import { CustomButton } from "../components/form/CustomButton";
 
 export const Register: React.FC<{}> = () => {
   const { signup } = useAuth();
@@ -38,14 +39,7 @@ export const Register: React.FC<{}> = () => {
                 type="password"
               />
             </Box>
-            <Button
-              type="submit"
-              mt={4}
-              isLoading={isSubmitting}
-              colorScheme="teal"
-            >
-              register
-            </Button>
+            <CustomButton mt={4} isLoading={isSubmitting} text="Register" />
           </Form>
         )}
       </Formik>

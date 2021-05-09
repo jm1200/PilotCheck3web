@@ -1,14 +1,6 @@
 import { Flex, Text } from "@chakra-ui/layout";
-import {
-  Redirect,
-  Route,
-  RouteProps,
-  Switch,
-  useHistory,
-} from "react-router-dom";
-import { propTypes } from "react-spinkit";
+import { Redirect, Route, RouteProps, Switch } from "react-router-dom";
 import { Wrapper } from "./components/Wrapper";
-import { useMeQuery } from "./generated/graphql";
 import { Checklist } from "./pages/Checklist";
 import { EditPage } from "./pages/EditPage";
 import { Login } from "./pages/login";

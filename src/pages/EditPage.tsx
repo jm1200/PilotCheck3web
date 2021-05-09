@@ -1,25 +1,23 @@
-import { Button, Flex, Input, Select, Text } from "@chakra-ui/react";
-import { Textarea } from "@chakra-ui/react";
+import { Button, Flex, Input, Select, Text, Textarea } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { Redirect, RouteProps, useHistory, useLocation } from "react-router";
-import { options } from "../components/Directories/utils";
-import { Folder, File } from "../types";
-import { Checklist } from "./Checklist";
+import { RouteProps, useHistory, useLocation } from "react-router";
 import { v4 as uuid } from "uuid";
+import { options } from "../components/Directories/utils";
 import {
-  useMeQuery,
   UserDataDocument,
   UserDataQuery,
   useSetDataMutation,
   useUserDataQuery,
 } from "../generated/graphql";
+import { useAuth } from "../Providers/AuthProvider";
+import { File, Folder } from "../types";
 import { addFile, deleteFile, editFile } from "../utils/addFile";
+import { Checklist } from "./Checklist";
 
 interface EditPageProps extends RouteProps {}
 
-export const EditPage: React.FC<EditPageProps> = ({ location }) => {
-  const { data: meData, loading: meLoading } = useMeQuery();
-
+export const EditPage: React.FC<EditPageProps> = () => {
+  const { user, loadingAuth } = useAuth();
   const { state } = useLocation<{ file: File; folder: Folder }>();
   const history = useHistory();
   const { data: userData } = useUserDataQuery();
@@ -30,6 +28,10 @@ export const EditPage: React.FC<EditPageProps> = ({ location }) => {
   const [text, setText] = useState(state.file.xml);
   const [title, setTitle] = useState(state.file.title);
   const [order, setOrder] = useState(state.file.order);
+
+  // if (!user || loadingAuth) {
+  //   return <Text>Loading</Text>;
+  // }
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -42,19 +44,14 @@ export const EditPage: React.FC<EditPageProps> = ({ location }) => {
   };
 
   useEffect(() => {
-    let isMounted = true;
-    if (isMounted) {
+    if (user && user.me && !loadingAuth) {
       let { order, title, xml } = state.file;
 
       setText(xml);
       setOrder(order);
       setTitle(title);
     }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [state]);
+  }, [state, user, loadingAuth]);
 
   let optArr: JSX.Element[] = [];
   if (state.file.id) {
