@@ -53,12 +53,6 @@ export const EditFolderForm: React.FC<EditFolderFormProps> = ({
         />
       </Flex>
       <Flex w="100%" mt={1} justifyContent="space-between" alignItems="center">
-        {/* <Input
-          w="20%"
-          placeholder="order"
-          value={order}
-          onChange={handleOrderChange}
-        /> */}
         <Select w="100%" value={order} onChange={handleOrderChange}>
           {optArr.map((option) => option)}
         </Select>

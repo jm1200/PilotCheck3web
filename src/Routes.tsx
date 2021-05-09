@@ -1,5 +1,12 @@
-import { Flex } from "@chakra-ui/layout";
-import { Route, RouteProps, Switch, useHistory } from "react-router-dom";
+import { Flex, Text } from "@chakra-ui/layout";
+import {
+  Redirect,
+  Route,
+  RouteProps,
+  Switch,
+  useHistory,
+} from "react-router-dom";
+import { propTypes } from "react-spinkit";
 import { Wrapper } from "./components/Wrapper";
 import { useMeQuery } from "./generated/graphql";
 import { Checklist } from "./pages/Checklist";
@@ -8,10 +15,7 @@ import { Login } from "./pages/login";
 import { ProtectedHome } from "./pages/ProtectedHome";
 import { PublicHome } from "./pages/PublicHome";
 import { Register } from "./pages/register";
-
-function ProtectedPage() {
-  return <h3>Protected</h3>;
-}
+import { useAuth } from "./Providers/AuthProvider";
 
 export const Routes = () => {
   return (
@@ -20,6 +24,7 @@ export const Routes = () => {
         <Route exact path="/">
           <PublicHome />
         </Route>
+
         <CustomRoute path="/login">
           <Wrapper>
             <Login />
@@ -33,9 +38,7 @@ export const Routes = () => {
         <PrivateRoute path="/home">
           <ProtectedHome />
         </PrivateRoute>
-        <PrivateRoute path="/protected">
-          <ProtectedPage />
-        </PrivateRoute>
+
         <PrivateRoute>
           <EditPage />
         </PrivateRoute>
@@ -48,31 +51,29 @@ export const Routes = () => {
 };
 
 const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
-  const { data, loading } = useMeQuery();
-  const history = useHistory();
+  const { user, loadingAuth } = useAuth();
 
-  if (loading) {
-    return null;
+  if (!loadingAuth && user?.me) {
+    return <Route {...rest}>{children}</Route>;
   }
 
-  if (!loading && !data?.me) {
-    history.push("/login", history.location.pathname);
+  if (!loadingAuth && !user?.me) {
+    return <Redirect to={{ pathname: "/home" }} />;
   }
 
-  return <Route {...rest}>{children}</Route>;
+  return <Text>Loading</Text>;
 };
 
-const CustomRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
-  const { data, loading } = useMeQuery();
-  const history = useHistory();
+const CustomRoute: React.FC<RouteProps> = ({ children, location, ...rest }) => {
+  const { user, loadingAuth } = useAuth();
 
-  if (loading) {
-    return null;
+  if (!loadingAuth && user?.me) {
+    return <Redirect to={{ pathname: "/home" }} />;
   }
 
-  if (!loading && data?.me) {
-    history.push("/home", history.location.pathname);
+  if (!loadingAuth && !user?.me) {
+    return <Route {...rest}>{children}</Route>;
   }
 
-  return <Route {...rest}>{children}</Route>;
+  return <Text>Loading</Text>;
 };

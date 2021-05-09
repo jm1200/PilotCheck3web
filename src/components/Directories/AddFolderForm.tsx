@@ -17,7 +17,7 @@ export const AddFolderForm: React.FC<AddFolderFormProps> = ({
   length,
 }) => {
   const [title, setTitle] = useState("");
-  const [order, setOrder] = useState(length + 1);
+  const [order, setOrder] = useState(length);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -27,7 +27,7 @@ export const AddFolderForm: React.FC<AddFolderFormProps> = ({
     setOrder(parseInt(e.target.value));
   };
 
-  let optArr = options(length + 1);
+  let optArr = options(length);
 
   return (
     <Flex direction="column" m={2} p={2} bgColor="gray.600" borderRadius={5}>
@@ -43,13 +43,7 @@ export const AddFolderForm: React.FC<AddFolderFormProps> = ({
         />
       </Flex>
       <Flex w="100%" mt={1} justifyContent="space-between" alignItems="center">
-        {/* <Input
-          w="40%"
-          placeholder="order"
-          value={order + 1}
-          onChange={handleOrderChange}
-        /> */}
-        <Select w="100%" value={order - 1} onChange={handleOrderChange}>
+        <Select w="100%" value={order} onChange={handleOrderChange}>
           {optArr.map((option) => option)}
         </Select>
         <Button

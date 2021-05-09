@@ -93,6 +93,7 @@ const authContext = createContext<AuthContext>(defaultAuthContext);
 
 export const AuthProvider: React.FC = ({ children }) => {
   const auth = useProvideAuth();
+  console.log("AuthProvider.tsx 96 AUTHUSER:", auth);
   return <authContext.Provider value={auth}>{children}</authContext.Provider>;
 };
 

@@ -4,14 +4,12 @@ import { Box, Button } from "@chakra-ui/react";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
 import { toErrorMap } from "../utils/toErrorMap";
-import { useHistory, useLocation } from "react-router";
 import { useAuth } from "../Providers/AuthProvider";
+import { RouteProps, useHistory } from "react-router";
 
-export const Login: React.FC<{}> = () => {
-  // const [login] = useLoginMutation();
+export const Login: React.FC<RouteProps> = ({ location }) => {
   const { signin } = useAuth();
   const history = useHistory();
-  const location = useLocation();
   return (
     <Wrapper variant="small">
       <Formik
@@ -23,7 +21,7 @@ export const Login: React.FC<{}> = () => {
           if (response.data?.login.errors) {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
-            history.push((location.state as string) || "/home");
+            history.push((location?.state as string) || "/home");
           }
         }}
       >

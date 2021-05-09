@@ -67,7 +67,6 @@ export type User = {
   __typename?: 'User';
   id: Scalars['Float'];
   email: Scalars['String'];
-  dataId: Scalars['String'];
   data: Data;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
@@ -86,7 +85,11 @@ export type RegularErrorFragment = (
 
 export type RegularUserFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'email' | 'dataId'>
+  & Pick<User, 'id' | 'email'>
+  & { data: (
+    { __typename?: 'Data' }
+    & Pick<Data, 'id' | 'directories'>
+  ) }
 );
 
 export type RegularUserResponseFragment = (
@@ -180,7 +183,10 @@ export const RegularUserFragmentDoc = gql`
     fragment RegularUser on User {
   id
   email
-  dataId
+  data {
+    id
+    directories
+  }
 }
     `;
 export const RegularUserResponseFragmentDoc = gql`

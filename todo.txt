@@ -1,3 +1,8 @@
 Left off:
 
-settting state with directories insead of userData query. wondering if I need use state at all or if hook will force re render.
+login, register, logout working with no errors now. 
+
+can't add file. check routes and links.
+
+BUGS:
+register bug: when registering new user, directories is null and crashes.

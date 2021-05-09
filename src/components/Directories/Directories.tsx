@@ -17,7 +17,7 @@ import { EditFolderForm } from "./EditFolderForm";
 
 interface DirectoriesProps {
   subDirectories: Folder[];
-  setDirectories: React.Dispatch<React.SetStateAction<Folder[]>>;
+  setDirectories: React.Dispatch<React.SetStateAction<Folder[] | undefined>>;
   topLevelDirectories: Folder[];
   depth: number;
 }
@@ -65,30 +65,6 @@ export const Directories: React.FC<DirectoriesProps> = ({
     setAddMode("");
     setDirectories(JSON.parse(JSON.stringify(topLevelDirectories)));
   };
-
-  // const handleAddFile = (
-  //   title: string,
-  //   xml: string,
-  //   order: number,
-  //   subDirectory: Folder
-  // ) => {
-  //   const newFile: File = {
-  //     id: uuid(),
-  //     title,
-  //     order,
-  //     xml,
-  //   };
-
-  //   let parent = subDirectory.contents.files;
-  //   if (parent.length === 0) {
-  //     parent.push(newFile);
-  //   } else {
-  //     parent.splice(order, 0, newFile);
-
-  //     //reset all orders
-  //     parent.forEach((el, i) => (el.order = i));
-  //   }
-  // };
 
   const handleDelete = (parentArray: Folder[], i: number) => {
     parentArray!.splice(i, 1);
@@ -242,7 +218,6 @@ export const Directories: React.FC<DirectoriesProps> = ({
                           state: {
                             file,
                             folder: subDirectory,
-                            indexToDelete: i,
                           },
                         }}
                         ml={2}

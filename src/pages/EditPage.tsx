@@ -1,25 +1,29 @@
 import { Button, Flex, Input, Select, Text } from "@chakra-ui/react";
 import { Textarea } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { Redirect, RouteProps, useHistory, useLocation } from "react-router";
 import { options } from "../components/Directories/utils";
-// import { useData } from "../Providers/DataProvider";
 import { Folder, File } from "../types";
 import { Checklist } from "./Checklist";
 import { v4 as uuid } from "uuid";
 import {
+  useMeQuery,
   UserDataDocument,
   UserDataQuery,
   useSetDataMutation,
   useUserDataQuery,
 } from "../generated/graphql";
+import { addFile, deleteFile, editFile } from "../utils/addFile";
 
-// const htmlparser2 = require("htmlparser2");
-interface EditPageProps {}
+interface EditPageProps extends RouteProps {}
 
-export const EditPage: React.FC<EditPageProps> = () => {
+export const EditPage: React.FC<EditPageProps> = ({ location }) => {
+  const { data: meData, loading: meLoading } = useMeQuery();
+
   const { state } = useLocation<{ file: File; folder: Folder }>();
-  const { data: userData, loading: useDataLoading } = useUserDataQuery();
+  const history = useHistory();
+  const { data: userData } = useUserDataQuery();
+  console.log("EditPage.tsx 24 state:", state);
 
   const [setData] = useSetDataMutation();
 
@@ -38,83 +42,98 @@ export const EditPage: React.FC<EditPageProps> = () => {
   };
 
   useEffect(() => {
-    let { order, title, xml } = state.file;
-    setText(xml);
-    setOrder(order + 1);
-    setTitle(title);
+    let isMounted = true;
+    if (isMounted) {
+      let { order, title, xml } = state.file;
+
+      setText(xml);
+      setOrder(order);
+      setTitle(title);
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, [state]);
 
-  let optArr = options(order);
+  let optArr: JSX.Element[] = [];
+  if (state.file.id) {
+    optArr = options(state.folder.contents.files.length);
+  } else {
+    optArr = options(state.folder.contents.files.length + 1);
+  }
 
   const handleSave = async () => {
-    let newChecklist = {
-      id: uuid(),
-      title,
-      order,
-      xml: text,
-      folderId: state.folder.id,
-    };
-
     if (userData) {
-      console.log(
-        "EditPage.tsx 55 userData:",
-        JSON.parse(userData.userData!.directories)
-      );
-      console.log("EditPage.tsx 56 state:", state);
-
-      const { directories, id } = userData.userData!;
-
+      const { directories, id } = userData!.userData!;
       const oldDirectories = JSON.parse(directories);
-      let newData = {
-        __typeName: "Data",
-        id,
-        directories: JSON.stringify(oldDirectories),
-      };
+      let checklist: File;
+      if (state.file.id) {
+        console.log("Editing a file");
+        checklist = { id: state.file.id, title, order, xml: text };
+        editFile(oldDirectories, checklist, state.folder.id);
+      } else {
+        console.log("Adding a file");
+        checklist = { id: uuid(), title, order, xml: text };
+        addFile(oldDirectories, checklist, state.folder.id);
+      }
 
-      const addFile = (directories: Folder[], newFile: File) => {
-        directories.forEach((directory) => {
-          if (directory.id === state.folder.id) {
-            directory.contents.files.push(newFile);
-            console.log("Found folder");
-            return;
-          } else if (directory.contents.folders.length > 0) {
-            addFile(directory.contents.folders, newFile);
-          }
-          return;
-        });
-      };
-
-      addFile(oldDirectories, newChecklist);
-
-      console.log("EditPage.tsx 73 oldDirectories:", oldDirectories);
-
-      const res = await setData({
-        variables: { directories: JSON.stringify(oldDirectories) },
-        update: (cache, { data }) => {
-          console.log(
-            "EditPage.tsx 94 inside write cache :",
-            JSON.parse(data!.setData.directories)
-          );
-          cache.writeQuery<UserDataQuery>({
-            query: UserDataDocument,
-            data: {
-              userData: {
-                ...newData,
-                directories: JSON.stringify(oldDirectories),
+      try {
+        await setData({
+          variables: { directories: JSON.stringify(oldDirectories) },
+          update: (cache, { data }) => {
+            console.log(
+              "EditPage.tsx 94 inside write cache :",
+              JSON.parse(data!.setData.directories)
+            );
+            cache.writeQuery<UserDataQuery>({
+              query: UserDataDocument,
+              data: {
+                userData: {
+                  __typename: "Data",
+                  id,
+                  directories: JSON.stringify(oldDirectories),
+                },
               },
-            },
-          });
-        },
-      });
-      console.log(
-        "EditPage.tsx 74 res:",
-        JSON.parse(res.data!.setData!.directories)
-      );
+            });
+          },
+        });
+      } catch (error) {
+        console.log("error setting data from edit page", error);
+      }
+    }
+  };
+  const handleDelete = async () => {
+    if (userData) {
+      const { directories, id } = userData!.userData!;
+      const oldDirectories = JSON.parse(directories);
+      deleteFile(oldDirectories, state.file, state.folder.id);
 
-      // if (handleAddFile) {
-      //   handleAddFile(title, text, order, state.folder);
-      //   console.log("saving: ", newChecklist);
-      // }
+      try {
+        await setData({
+          variables: { directories: JSON.stringify(oldDirectories) },
+          update: (cache, { data }) => {
+            console.log(
+              "EditPage.tsx 94 inside write cache :",
+              JSON.parse(data!.setData.directories)
+            );
+            cache.writeQuery<UserDataQuery>({
+              query: UserDataDocument,
+              data: {
+                userData: {
+                  __typename: "Data",
+                  id,
+                  directories: JSON.stringify(oldDirectories),
+                },
+              },
+            });
+          },
+        });
+
+        history.push("./home");
+      } catch (error) {
+        console.log("error deleting data from edit page", error);
+      }
     }
   };
 
@@ -129,15 +148,8 @@ export const EditPage: React.FC<EditPageProps> = () => {
             placeholder="Checklist Title: "
             size="sm"
           />
-          {/* <Input
-            w="20%"
-            value={order}
-            onChange={handleOrderChange}
-            placeholder="Order "
-            size="sm"
-            type="number"
-          /> */}
-          <Select w="20%" value={order - 1} onChange={handleOrderChange}>
+
+          <Select w="20%" value={order} onChange={handleOrderChange}>
             {optArr.map((option) => option)}
           </Select>
         </Flex>
@@ -151,9 +163,16 @@ export const EditPage: React.FC<EditPageProps> = () => {
           onChange={handleChange}
           value={text}
         />
-        <Button my={2} mx="auto" w="90%" size="sm" onClick={handleSave}>
-          Save
-        </Button>
+        <Flex>
+          <Button my={2} mx="auto" w="90%" size="sm" onClick={handleSave}>
+            Save
+          </Button>
+          {state.file.id && (
+            <Button colorScheme="red" onClick={handleDelete}>
+              Delete
+            </Button>
+          )}
+        </Flex>
         <Text mt={4}>Example:</Text>
         <Text fontSize="12px" as="pre" px={2}>
           {`
@@ -184,46 +203,3 @@ export const EditPage: React.FC<EditPageProps> = () => {
     </Flex>
   );
 };
-
-// const NoteTitle: React.FC<{}> = ({ children }) => {
-//   return <Heading>{children}</Heading>;
-// };
-
-// const NoteText: React.FC<{}> = ({ children }) => {
-//   return <Text>{children}</Text>;
-// };
-
-// const Note: React.FC<{}> = ({ children }) => {
-//   console.log(children);
-//   return (
-//     <Box w="100%" bgColor="blue.300">
-//       {children}
-//     </Box>
-//   );
-// };
-
-/* 
-<ChecklistTitle>Configuration Safety Checklist</ChecklistTitle>
-<ChecklistItem><Item>SLAT/FLAP lever</Item><Action>
-    In agreement with actual Slat/Flap position
-  </Action>
-  </ChecklistItem>
-
-<ChecklistItem ffod="true">
-  <Item>PARK BRAKE</Item>
-  <Action>ON</Action>
-</ChecklistItem>
-<ChecklistItem>
-  <Item>BATT 1</Item>
-  <Action>AUTO</Action>
-</ChecklistItem>
-<ChecklistItem>
-  <Item>BATT 2</Item>
-  <Action>AUTO</Action>
-</ChecklistItem>
-<ChecklistItem fullRow="true"><Item>Once DU 2 is Powered</Item></ChecklistItem>
-<ChecklistItem>
-  <Item>ECL</Item>
-  <Action>Select on DU 2</Action>
-</ChecklistItem> 
-*/

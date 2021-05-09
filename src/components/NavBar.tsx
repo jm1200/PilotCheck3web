@@ -48,9 +48,9 @@ export const NavBar: React.FC<NavBarProps> = () => {
         </Link>
         <Button
           onClick={async () => {
-            history.push("/");
             // await logout();
             signout!();
+            history.push("/");
             await apolloClient.resetStore();
           }}
           // isLoading={logoutFetching}
