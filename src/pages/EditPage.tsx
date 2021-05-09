@@ -7,7 +7,6 @@ import {
   UserDataDocument,
   UserDataQuery,
   useSetDataMutation,
-  useUserDataQuery,
 } from "../generated/graphql";
 import { useAuth } from "../Providers/AuthProvider";
 import { File, Folder } from "../types";
@@ -18,10 +17,12 @@ interface EditPageProps extends RouteProps {}
 
 export const EditPage: React.FC<EditPageProps> = () => {
   const { user, loadingAuth } = useAuth();
-  const { state } = useLocation<{ file: File; folder: Folder }>();
+  const { state } = useLocation<{
+    file: File;
+    folder: Folder;
+    topLevelDirectories: Folder[];
+  }>();
   const history = useHistory();
-  const { data: userData } = useUserDataQuery();
-  console.log("EditPage.tsx 24 state:", state);
 
   const [setData] = useSetDataMutation();
 
@@ -53,6 +54,10 @@ export const EditPage: React.FC<EditPageProps> = () => {
     }
   }, [state, user, loadingAuth]);
 
+  if (!user || !user.me || loadingAuth) {
+    return <Text>No user or auth loading</Text>;
+  }
+
   let optArr: JSX.Element[] = [];
   if (state.file.id) {
     optArr = options(state.folder.contents.files.length);
@@ -61,76 +66,63 @@ export const EditPage: React.FC<EditPageProps> = () => {
   }
 
   const handleSave = async () => {
-    if (userData) {
-      const { directories, id } = userData!.userData!;
-      const oldDirectories = JSON.parse(directories);
-      let checklist: File;
-      if (state.file.id) {
-        console.log("Editing a file");
-        checklist = { id: state.file.id, title, order, xml: text };
-        editFile(oldDirectories, checklist, state.folder.id);
-      } else {
-        console.log("Adding a file");
-        checklist = { id: uuid(), title, order, xml: text };
-        addFile(oldDirectories, checklist, state.folder.id);
-      }
+    const { id } = user!.me!.data;
+    const oldDirectories = state.topLevelDirectories;
 
-      try {
-        await setData({
-          variables: { directories: JSON.stringify(oldDirectories) },
-          update: (cache, { data }) => {
-            console.log(
-              "EditPage.tsx 94 inside write cache :",
-              JSON.parse(data!.setData.directories)
-            );
-            cache.writeQuery<UserDataQuery>({
-              query: UserDataDocument,
-              data: {
-                userData: {
-                  __typename: "Data",
-                  id,
-                  directories: JSON.stringify(oldDirectories),
-                },
+    let checklist: File;
+    if (state.file.id) {
+      checklist = { id: state.file.id, title, order, xml: text };
+      editFile(oldDirectories, checklist, state.folder.id);
+    } else {
+      checklist = { id: uuid(), title, order, xml: text };
+      addFile(oldDirectories, checklist, state.folder.id);
+    }
+
+    try {
+      await setData({
+        variables: { directories: JSON.stringify(oldDirectories) },
+        update: (cache, { data }) => {
+          cache.writeQuery<UserDataQuery>({
+            query: UserDataDocument,
+            data: {
+              userData: {
+                __typename: "Data",
+                id,
+                directories: JSON.stringify(oldDirectories),
               },
-            });
-          },
-        });
-      } catch (error) {
-        console.log("error setting data from edit page", error);
-      }
+            },
+          });
+        },
+      });
+    } catch (error) {
+      console.log("error setting data from edit page", error);
     }
   };
   const handleDelete = async () => {
-    if (userData) {
-      const { directories, id } = userData!.userData!;
-      const oldDirectories = JSON.parse(directories);
-      deleteFile(oldDirectories, state.file, state.folder.id);
+    const { directories, id } = user!.me!.data;
+    const oldDirectories = JSON.parse(directories);
+    deleteFile(oldDirectories, state.file, state.folder.id);
 
-      try {
-        await setData({
-          variables: { directories: JSON.stringify(oldDirectories) },
-          update: (cache, { data }) => {
-            console.log(
-              "EditPage.tsx 94 inside write cache :",
-              JSON.parse(data!.setData.directories)
-            );
-            cache.writeQuery<UserDataQuery>({
-              query: UserDataDocument,
-              data: {
-                userData: {
-                  __typename: "Data",
-                  id,
-                  directories: JSON.stringify(oldDirectories),
-                },
+    try {
+      await setData({
+        variables: { directories: JSON.stringify(oldDirectories) },
+        update: (cache, { data }) => {
+          cache.writeQuery<UserDataQuery>({
+            query: UserDataDocument,
+            data: {
+              userData: {
+                __typename: "Data",
+                id,
+                directories: JSON.stringify(oldDirectories),
               },
-            });
-          },
-        });
+            },
+          });
+        },
+      });
 
-        history.push("./home");
-      } catch (error) {
-        console.log("error deleting data from edit page", error);
-      }
+      history.push("./home");
+    } catch (error) {
+      console.log("error deleting data from edit page", error);
     }
   };
 

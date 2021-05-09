@@ -115,7 +115,6 @@ export const Directories: React.FC<DirectoriesProps> = ({
       setAddMode("");
     }
   };
-
   return (
     <Flex direction="column">
       {subDirectories.map((subDirectory, i) => {
@@ -167,6 +166,7 @@ export const Directories: React.FC<DirectoriesProps> = ({
                               title: "",
                               order: subDirectory.contents.files.length,
                             },
+                            topLevelDirectories,
                           },
                         }}
                       >
@@ -218,6 +218,7 @@ export const Directories: React.FC<DirectoriesProps> = ({
                           state: {
                             file,
                             folder: subDirectory,
+                            topLevelDirectories,
                           },
                         }}
                         ml={2}

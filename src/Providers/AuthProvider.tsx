@@ -17,6 +17,12 @@ function useProvideAuth() {
 
   useEffect(() => {
     setMe(meData);
+    if (meData && meData.me) {
+      console.log(
+        "AuthProvider.tsx 20 meData changed:",
+        JSON.parse(meData.me.data.directories)
+      );
+    }
   }, [meData]);
 
   //Auth API
