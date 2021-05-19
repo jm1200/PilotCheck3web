@@ -1,5 +1,7 @@
 Left off:
 
+need to be able to validate my forms: add/edit folder form. edit page form. formik....
+
 Bugs:
 - fix order values so that order+1 displays, but value stays at index location.
 

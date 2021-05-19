@@ -61,7 +61,6 @@ function useProvideAuth() {
         });
       },
     });
-
     return response;
   };
 
