@@ -28,7 +28,7 @@ export const NavBar: React.FC<NavBarProps> = () => {
     );
   } else if (!data?.me) {
     body = (
-      <>
+      <Flex>
         <Link as={RouterLink} to="/login" mr={2}>
           <TestIdWrapper id="loginLink">login</TestIdWrapper>
         </Link>
@@ -36,13 +36,15 @@ export const NavBar: React.FC<NavBarProps> = () => {
         <Link as={RouterLink} to="/register" mr={2}>
           register
         </Link>
-      </>
+      </Flex>
     );
     // user is logged in
   } else {
     body = (
       <Flex align="center">
-        <Box mr={2}>{data.me.email}</Box>
+        <Link as={RouterLink} to="/account" mr={2}>
+          {data.me.email}
+        </Link>
         <Link as={RouterLink} to="/protected" mr={2}>
           protected
         </Link>

@@ -1,6 +1,7 @@
 import { Flex, Text } from "@chakra-ui/layout";
 import { Redirect, Route, RouteProps, Switch } from "react-router-dom";
 import { Wrapper } from "./components/Wrapper";
+import { Account } from "./pages/Account";
 import { Checklist } from "./pages/Checklist";
 import { EditPage } from "./pages/EditPage";
 import { Login } from "./pages/login";
@@ -29,6 +30,9 @@ export const Routes = () => {
         </CustomRoute>
         <PrivateRoute path="/home">
           <ProtectedHome />
+        </PrivateRoute>
+        <PrivateRoute path="/account">
+          <Account />
         </PrivateRoute>
 
         <PrivateRoute>
